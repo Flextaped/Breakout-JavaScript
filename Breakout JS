@@ -1,0 +1,114 @@
+var NUM_ROWS = 8;
+var BRICK_TOP_OFFSET = 10;
+var BRICK_SPACING = 2;
+var NUM_BRICKS_PER_ROW = 10;
+var BRICK_HEIGHT = 10;
+var SPACE_FOR_BRICKS = getWidth() - (NUM_BRICKS_PER_ROW + 1) * BRICK_SPACING;
+var BRICK_WIDTH = SPACE_FOR_BRICKS / NUM_BRICKS_PER_ROW;
+var row = 1;
+
+var PADDLE_WIDTH = 80;
+var PADDLE_HEIGHT = 15;
+var PADDLE_OFFSET = 10;
+var color;
+
+var BALL_RADIUS = 15;
+var brickCount = 0;
+var brickX = BRICK_SPACING;
+var brickY = BRICK_TOP_OFFSET;
+var ball = new Circle(15);
+ball.setPosition(getWidth()/2, getHeight()/2+30);
+var dx = 2;
+var dy = 5;
+var paddle = new Rectangle(80, 15);
+paddle.setPosition(getWidth()/2, getHeight()-25);
+var ballMove = false;
+function start(){
+    add(ball);
+    add(paddle);
+	setTimer(brickRow, .1);
+	setTimer(move, 20);
+	mouseMoveMethod(paddleMove);
+	mouseClickMethod(ballMover);
+}
+
+function brickRow(){
+    if(row <= 2){
+        color = Color.red;
+    } else if(row <= 4){
+        color = Color.yellow;
+    } else if(row <= 6){
+        color = Color.green;
+    } else{
+        color = Color.blue;
+    }
+    var brick = new Rectangle(BRICK_WIDTH, BRICK_HEIGHT);
+    brick.setPosition(brickX, brickY);
+    brick.setColor(color);
+    add(brick);
+    brickX = brickX + BRICK_WIDTH + 2;
+    brickCount++;
+    if(brickCount == 10){
+        row++;
+        brickCount = 0;
+        brickY = brickY + BRICK_HEIGHT + 2;
+        brickX = 2;
+    }
+    if(row > 8){
+        stopTimer(brickRow);
+    }
+}
+
+function move(){
+    bounce();
+    if(ballMove==true){
+    ball.move(dx, dy);
+    }
+}
+
+function bounce(){
+    var elem = getElementAt(ball.getX(), ball.getY() + ball.getRadius());
+	var elem1 = getElementAt(ball.getX(), ball.getY() - ball.getRadius());
+	var elem2 = getElementAt(ball.getX() + ball.getRadius(), ball.getY());
+	var elem3 = getElementAt(ball.getX() - ball.getRadius(), ball.getY());
+    if(ballMove == true){
+        if(ball.getX() + ball.getRadius() > getWidth()){
+		    dx = -dx;
+	    }
+	    if(ball.getX() - ball.getRadius() < 0){
+		    dx = -dx;
+	    }
+	    if(ball.getY() + ball.getRadius() > getHeight()){
+		    dy = -dy;
+	    }
+	    if(ball.getY() - ball.getRadius() < 0){
+		    dy = -dy;
+	    }
+	    if(elem != null){
+	        dy = -dy;
+	    }
+	    if(elem1 != null){
+	        dy = -dy;
+	    }
+	    if(elem2 != null){
+	        dx = -dx;
+	    }
+	    if(elem3 != null){
+	        dx = -dx;
+	    }
+	    if(ball.getY() > paddle.getY()){
+            ball.setPosition(getWidth()/2, getHeight()/2);
+            ballMove = false;
+        }
+    }
+}
+
+function ballMover(e){
+    if(ballMove==false){
+        ballMove = true;
+    }
+}
+
+function paddleMove(e){
+    paddle.setPosition(e.getX()-40, getHeight()-25);
+}
